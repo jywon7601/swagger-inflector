@@ -1,30 +1,24 @@
 package io.swagger.inflector.utils;
 
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.inflector.Constants;
 import io.swagger.models.ArrayModel;
 import io.swagger.models.ComposedModel;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
-import io.swagger.models.Operation;
-import io.swagger.models.Path;
 import io.swagger.models.RefModel;
 import io.swagger.models.Response;
 import io.swagger.models.Swagger;
 import io.swagger.models.parameters.BodyParameter;
-import io.swagger.models.parameters.Parameter;
 import io.swagger.models.properties.ObjectProperty;
-import io.swagger.models.properties.Property;
 import io.swagger.models.properties.RefProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 public class ResolverFully {
@@ -197,7 +191,18 @@ public class ResolverFully {
                 obj.setProperties(updated);
             }
             return obj;
-        }
+
+		/* BYWJY: to support resolving array properties in Swagger/OpenApi 2.0 (swagger v1 branch) */
+		} else if (property instanceof ArrayProperty) {
+			ArrayProperty obj = (ArrayProperty) property;
+			if (obj.getItems() != null) {
+				Property updated = obj.getItems();
+				Property resolved = resolveProperty(updated);
+				obj.setItems(resolved);
+			}
+			return obj;
+
+		}
             return property;
     }
 }
